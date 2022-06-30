@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls.static import static
 from core.views import redirect_to_swagger
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from user.views import MyTokenObtainPairView
