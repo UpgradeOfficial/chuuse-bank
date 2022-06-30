@@ -1,7 +1,6 @@
 from django.conf import settings
 
 import random
-from cryptography.fernet import Fernet, InvalidToken
 from random import randint
 from datetime import datetime, timedelta
 from rest_framework.exceptions import  ValidationError
