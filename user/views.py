@@ -32,7 +32,7 @@ class UserRegistrationView(APIView):
         data ={
             "responseCode":200,
             'success': True,
-            "message": "New Account created Successfully"
+            "message": f"New Account created Successfully and your account number is {user.account_number}"
         }
         
 

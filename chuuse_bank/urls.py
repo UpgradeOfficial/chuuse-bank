@@ -15,13 +15,14 @@ urlpatterns = [
     path('swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('admin/', admin.site.urls),
-    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
-
-    # path('login/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    
     path('login/', LoginView.as_view(), name='token_obtain_pair'),
     path('', redirect_to_swagger),
     path('', include('user.urls')),
     path('', include('transaction.urls')),
+
+    #path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
+    # path('login/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
 
 ]
 

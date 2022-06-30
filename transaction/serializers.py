@@ -36,27 +36,20 @@ class TransactionInfoSerializer(serializers.ModelSerializer):
         # Double accountBalance (after the transaction)
 
 
-class DepositTransactionSerializer(serializers.ModelSerializer):
-    account_number = serializers.CharField(write_only=True)
-    class Meta:
-        model = Transaction
-        fields = ['account_number', 'amount']
-        # exclude = ['groups','user_permissions', 'auth_povider'] + User.get_hidden_fields()
-        read_only_fields = ("account", "transaction_type")
-        # extra_kwargs = {
-        #     'user_type': {'write_only': True},
-            
-        # }
+class DepositTransactionSerializer(serializers.Serializer):
+    accountNumber = serializers.CharField(write_only=True)
+    amount= serializers.DecimalField(max_digits=100, decimal_places=2, write_only=True)
 
-    def create(self, validated_data):
+
+    def validate(self,data):
         user = self.context.get('request').user
-        account_number = validated_data.get("account_number")
-        amount = validated_data.get("amount")
-        account = User.objects.filter(account_number=account_number)
+        accountNumber =data.get("accountNumber")
+        amount =data.get("amount")
+        account = User.objects.filter(account_number=accountNumber)
         if len(account) == 0 or  user != account.first():
             raise ValidationError("Either account doesn't exist or you are not the owner of this account")
         transaction = Transaction.objects.create(account=user, amount=amount)
-        return transaction
+        return data
 
 class WithdrawalTransactionSerializer(serializers.Serializer):
     accountNumber = serializers.CharField(write_only=True)
@@ -72,6 +65,8 @@ class WithdrawalTransactionSerializer(serializers.Serializer):
         account = User.objects.filter(account_number=accountNumber)
         if len(account) == 0 or  user != account.first():
             raise ValidationError("Either account doesn't exist or you are not the owner of this account")
+        if not user.check_password(accountPassword):
+            raise ValidationError("Password not correct")
         total_deposit = Transaction.objects.filter(account=user, transaction_type=Transaction.TRANSACTION_TYPE.DEPOSIT).aggregate(sum=Sum('amount'))['sum'] or 0
         total_withdrawal = Transaction.objects.filter(account=user, transaction_type=Transaction.TRANSACTION_TYPE.WITHDRAWAL).aggregate(sum=Sum('amount'))['sum'] or 0
         total_balance = total_deposit - total_withdrawal

@@ -30,13 +30,17 @@ class WithdrawView(APIView):
 class DepositView(CreateAPIView):
     serializer_class = serializers.DepositTransactionSerializer
 
-    # def perform_create(self, serializer):
-    #     data = serializer.validated_data
-    #     provider = Gateway().get_payment_gateway(data['provider'])
-    #     email = data['email']
-    #     amount = data['amount']
-    #     auth_url, id=provider.pay_amount(email=email, amount=amount)
-    #     serializer.context['authorization_url'] = auth_url 
+    def post(self, *args, **kwargs):
+        serializer = self.serializer_class(data=self.request.data, context={'request':self.request})
+        serializer.is_valid(raise_exception=True)
+        amount = serializer.validated_data.get("amount")
+        data ={
+                "responseCode":200,
+                "successful": True,
+         "message": f"Your Deposit of {amount} was successfull"
+
+        }
+        return Response(data=data) 
 
 class AccountInfoView(APIView):
     permission_classes = [permissions.IsAuthenticated]

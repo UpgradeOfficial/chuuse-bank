@@ -27,7 +27,6 @@ class TestTansaction(TestCase):
         }
         response = self.client.post(url, data=data)
         response_dict = response.json()
-        print(response_dict)
         transaction = Transaction.objects.filter(transaction_type=Transaction.TRANSACTION_TYPE.WITHDRAWAL).first()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Transaction.objects.count(),2)
@@ -36,45 +35,51 @@ class TestTansaction(TestCase):
         self.assertEqual(response_dict.get('message'),'Your withdrwal of 1000.00 was successfull')
         self.assertEqual(transaction.transaction_type, Transaction.TRANSACTION_TYPE.WITHDRAWAL)
 
-    # @mock.patch('core.authentication.TokenAuthentication.authenticate')
-    # def test_withdrawal_with_wrong_balance(self,  authenticate_function):
-    #     account = create_test_user()
-    #     deposit  = create_test_transaction(account=account, amount=10)
-    #     authenticate_function.return_value = account, None
-    #     url = reverse("transaction:withdrawal")
-    #     data= {"account_number":account.account_number,  'amount':1000}
-    #     response = self.client.post(url, data=data)
-    #     response_dict = response.json()
-    #     self.assertEqual(response.status_code, 400)
-    #     self.assertEqual(Transaction.objects.count(),1)
-    #     self.assertEqual(response_dict[0],"Your account balance is not enough to withdrawn this sum, balance is 10")
+    @mock.patch('core.authentication.TokenAuthentication.authenticate')
+    def test_withdrawal_with_wrong_balance(self,  authenticate_function):
+        account = create_test_user(password="password")
+        deposit  = create_test_transaction(account=account, amount=10)
+        authenticate_function.return_value = account, None
+        url = reverse("transaction:withdrawal")
+        data= {"accountNumber":account.account_number,  "accountPassword":"password",  
+            'withdrawnAmount':1000}
+        response = self.client.post(url, data=data)
+        response_dict = response.json()
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Transaction.objects.count(),1)
+        self.assertEqual(response_dict.get("non_field_errors")[0],"Your account balance is not enough to withdrawn this sum, balance is 10")
 
        
-    # @mock.patch('core.authentication.TokenAuthentication.authenticate')
-    # def test_withdrawal_with_wrong_user(self,  authenticate_function):
-    #     account = create_test_user()
-    #     account1 = create_test_user()
-    #     authenticate_function.return_value = account, None
-    #     url = reverse("transaction:withdrawal")
-    #     data= {"account_number":account1.account_number,  'amount':1000}
-    #     response = self.client.post(url, data=data)
-    #     response_dict = response.json()
-    #     self.assertEqual(response.status_code, 400)
-    #     self.assertEqual(Transaction.objects.count(),0)
-    #     self.assertEqual(response_dict[0],"Either account doesn't exist or you are not the owner of this account")
+    @mock.patch('core.authentication.TokenAuthentication.authenticate')
+    def test_withdrawal_with_wrong_user(self,  authenticate_function):
+        account = create_test_user()
+        account1 = create_test_user()
+        authenticate_function.return_value = account, None
+        url = reverse("transaction:withdrawal")
+        data= {"accountNumber":account1.account_number,  "accountPassword":"password",  
+            'withdrawnAmount':1000}
+        response = self.client.post(url, data=data)
+        response_dict = response.json()
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(Transaction.objects.count(),0)
+        self.assertEqual(response_dict.get("non_field_errors")[0],"Either account doesn't exist or you are not the owner of this account")
 
     @mock.patch('core.authentication.TokenAuthentication.authenticate')
     def test_deposit(self,  authenticate_function):
         account = create_test_user()
         authenticate_function.return_value = account, None
         url = reverse("transaction:deposit")
-        data= {"account_number":account.account_number,  'amount':1000}
+        data= {"accountNumber":account.account_number,  'amount':1000}
         response = self.client.post(url, data=data)
         response_dict = response.json()
+        print(response_dict)
         transaction = Transaction.objects.first()
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(Transaction.objects.count(),1)
         self.assertEqual(transaction.transaction_type, Transaction.TRANSACTION_TYPE.DEPOSIT)
+        self.assertEqual(response_dict.get('responseCode'),200)
+        self.assertEqual(response_dict.get('successful'),True)
+        self.assertEqual(response_dict.get('message'),'Your Deposit of 1000.00 was successfull')
 
     @mock.patch('core.authentication.TokenAuthentication.authenticate')
     def test_transaction_info(self,  authenticate_function):

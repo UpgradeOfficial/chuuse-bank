@@ -29,7 +29,7 @@ class TestUserRegistration(TestCase):
         self.assertEquals(len(str(account.account_number)),10)
         self.assertEqual(response_dict.get("responseCode"),200)
         self.assertTrue(response_dict.get("success"))
-        self.assertEqual(response_dict.get("message"),"New Account created Successfully")
+        self.assertEqual(response_dict.get("message"),f"New Account created Successfully and your account number is {account.account_number}")
 
 
 
