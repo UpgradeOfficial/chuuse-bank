@@ -16,3 +16,6 @@ class Transaction(CoreModel):
     )
     amount = models.DecimalField(max_digits=100, decimal_places=2)
 
+    def __str__(self) -> str:
+        return f"{self.transaction_type}-{self.amount}-{self.created_at}"
+

@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from core.views import redirect_to_swagger
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from user.views import MyTokenObtainPairView
 
 urlpatterns = [
     # YOUR PATTERNS For API Documentation 
@@ -10,9 +11,12 @@ urlpatterns = [
     path('swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('admin/', admin.site.urls),
+
+    path('login/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('', redirect_to_swagger),
     path('', include('user.urls')),
     path('', include('transaction.urls')),
+
 ]
 
 

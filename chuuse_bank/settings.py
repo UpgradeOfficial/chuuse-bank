@@ -23,11 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3egt2h&c_x!-!b@5qx$1%c+&#z6sud-7&y-h+gg)z2-z$$9&)5'
+SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
 
 
@@ -113,7 +112,7 @@ SIMPLE_JWT = {
 ########################################### SPECTACULAR CONFIGURATIONS  ###########################################
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Chuuse Bank API',
-    'DESCRIPTION': 'Provide security for society',
+    'DESCRIPTION': 'Simple Banking Software',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
@@ -121,49 +120,6 @@ SPECTACULAR_SETTINGS = {
     'REDOC_DIST': 'SIDECAR',
     # OTHER SETTINGS
     # OTHER SETTINGS
-}
-########################################### Chuuse BankING CONFIGURATIONS  ###########################################
-LOGGING={
-    
-   "version":1,
-   "disable_settings_loggers":False, # remove all other loggers
-   "formatters":{ # the format you want your log in
-        'main_formatter':{
-            'format':"{asctime} - {levelname} - {module} - {message}",
-            'style':"{"
-        },
-        'debug_formatter':{
-            'format':"{asctime} - {message}",
-            'style':"{"
-        }
-   },
-   "handlers":{ # where do you want to keep the log
-        'console':{
-            'class':"logging.StreamHandler", # this will output the log it to the console
-            'formatter':"main_formatter"
-        },
-        'dev_console':{
-            'class':"logging.StreamHandler", # this will output the log it to the console
-            'formatter':"debug_formatter"
-        },
-        'file':{
-            'class':"logging.FileHandler", # this will output the log it to the console
-            'formatter':"main_formatter",
-            "filename":f"info.log"
-        }
-   },
-   "loggers":{
-       'main':{
-           'handlers':['file', 'console'],
-           'propagate': True,
-           'level': "INFO"
-       },
-       'debug':{
-           'handlers':['dev_console'],
-           'propagate': True,
-           'level': "DEBUG"
-       }
-   },
 }
 
 

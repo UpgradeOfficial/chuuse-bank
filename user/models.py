@@ -6,9 +6,9 @@ from core.models import CoreModel
 
 
 class User(AbstractUser, CoreModel):
-    account_number = models.PositiveIntegerField(unique=True)
+    account_number = models.PositiveIntegerField(unique=True, null=True, blank=True)
     
     def save(self, *args, **kwargs):
-        if not self.id:
+        if not self.account_number:
             self.account_number = random_with_N_digits(10)
         super().save(*args, **kwargs) 

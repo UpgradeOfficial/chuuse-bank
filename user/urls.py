@@ -10,5 +10,7 @@ urlpatterns = [
         views.UserRegistrationView.as_view(),
         name="create_account"
     ),
+    path('account-info/<int:account_number>/', views.AccountInfoView.as_view(), name= "account-info"),
+    
    
 ]
