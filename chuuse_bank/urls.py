@@ -3,6 +3,7 @@ from django.urls import path, include
 from core.views import redirect_to_swagger
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from user.views import MyTokenObtainPairView
+from django.conf import settings
 
 urlpatterns = [
     # YOUR PATTERNS For API Documentation 
@@ -23,3 +24,6 @@ urlpatterns = [
 admin.site.site_header = "Chuuse Bank Admin"
 admin.site.site_title = "Your Admin Portal"
 admin.site.index_title = "Welcome to Chuuse Bank Admin Portal"
+
+urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root = settings.STATIC_ROOT)
