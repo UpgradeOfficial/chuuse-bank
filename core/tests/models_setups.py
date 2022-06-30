@@ -4,6 +4,7 @@ from core.utils import random_with_N_digits
 from transaction.models import Transaction
 from user.models import User
 from django.utils import timezone
+from rest_framework.authtoken.models import Token
 
 # Create your tests here.
 
@@ -13,7 +14,9 @@ def create_test_user(username=None, password=None, user_type=None, nop=10):
         password = random
     if not username:
         username = f"username{random}@gmail.com"
-    return User.objects.create_user(username=username, password=str(password))
+    user = User.objects.create_user(username=username, password=str(password))
+    Token.objects.get_or_create(user=user)
+    return user
 
 def create_test_transaction(account=None, transaction_type=None, amount=None, created_at=None):
 

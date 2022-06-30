@@ -4,7 +4,9 @@ from django.conf.urls.static import static
 from core.views import redirect_to_swagger
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from user.views import MyTokenObtainPairView
+from rest_framework.authtoken.views import obtain_auth_token
 from django.conf import settings
+from user.views import LoginView
 
 urlpatterns = [
     # YOUR PATTERNS For API Documentation 
@@ -13,8 +15,10 @@ urlpatterns = [
     path('swagger/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('admin/', admin.site.urls),
+    path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
 
-    path('login/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # path('login/', MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login/', LoginView.as_view(), name='token_obtain_pair'),
     path('', redirect_to_swagger),
     path('', include('user.urls')),
     path('', include('transaction.urls')),

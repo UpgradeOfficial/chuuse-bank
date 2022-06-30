@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     # Third party Apps
     'drf_spectacular',
     'drf_spectacular_sidecar',
+    'rest_framework.authtoken',
     'rest_framework',
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
@@ -78,7 +79,7 @@ JWT_SECRET_KEY=config("JWT_SECRET_KEY")
 
 SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ["BEARER"],
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=0.5), # it should last shorter than the access token
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=5), # it should last shorter than the access token
     'REFRESH_TOKEN_LIFETIME': timedelta(days=90), # it should be longer than the access token
     'ROTATE_REFRESH_TOKENS': False, # it return both a refresh and access token
     'BLACKLIST_AFTER_ROTATION': False, # this will blacklist it after rotation, so the old refresh token will not be allowed
