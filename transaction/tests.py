@@ -72,7 +72,6 @@ class TestTansaction(TestCase):
         data= {"accountNumber":account.account_number,  'amount':1000}
         response = self.client.post(url, data=data)
         response_dict = response.json()
-        print(response_dict)
         transaction = Transaction.objects.first()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Transaction.objects.count(),1)
@@ -82,21 +81,38 @@ class TestTansaction(TestCase):
         self.assertEqual(response_dict.get('message'),'Your Deposit of 1000.00 was successfull')
 
     @mock.patch('core.authentication.TokenAuthentication.authenticate')
+    def test_deposit_with_negative_amount(self,  authenticate_function):
+        account = create_test_user()
+        authenticate_function.return_value = account, None
+        url = reverse("transaction:deposit")
+        data= {"accountNumber":account.account_number,  'amount':-1000}
+        response = self.client.post(url, data=data)
+        response_dict = response.json()
+        transaction = Transaction.objects.first()
+        self.assertEqual(response.status_code, 400)
+        self.assertIsNone(transaction)
+        self.assertEqual(response_dict.get('amount')[0],"amount can't have a negative value and you input -1000.00")
+
+    @mock.patch('core.authentication.TokenAuthentication.authenticate')
     def test_transaction_info(self,  authenticate_function):
         account = create_test_user()
         now = timezone.now()
         authenticate_function.return_value = account, None
         deposit1 = create_test_transaction(account=account, amount= 100)
-        deposit1.create_at=now+timedelta(days=1)
-        deposit1.save()
         withdrwal1 = create_test_transaction(account=account, 
+        amount=90,
+        transaction_type=Transaction.TRANSACTION_TYPE.WITHDRAWAL)
+
+        deposit2 = create_test_transaction(account=account, amount= 80)
+        withdrwal2 = create_test_transaction(account=account, 
         amount=10,
-        transaction_type=Transaction.TRANSACTION_TYPE.WITHDRAWAL, 
-        created_at=now+timedelta(days=2))
+        transaction_type=Transaction.TRANSACTION_TYPE.WITHDRAWAL)
         url = reverse("transaction:account-statement", kwargs={"account_number":account.account_number})
+
         response = self.client.get(url)
         response_dict = response.json()
-        # transaction = Transaction.objects.first()
-        # self.assertEqual(response.status_code, 201)
-        # self.assertEqual(Transaction.objects.count(),1)
-        # self.assertEqual(transaction.transaction_type, Transaction.TRANSACTION_TYPE.DEPOSIT)
+        self.assertEqual(response_dict[0]['accountBalance'], 100)
+        self.assertEqual(response_dict[1]['accountBalance'], 10)
+        self.assertEqual(response_dict[2]['accountBalance'], 90)
+        self.assertEqual(response_dict[3]['accountBalance'], 80)
+        

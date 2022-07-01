@@ -60,6 +60,17 @@ class TestUserRegistration(TestCase):
         self.assertEqual(response_dict.get("account")['accountNumber'], user.account_number)
         self.assertEqual(response_dict.get("account")["balance"], user.balance)
 
+    @mock.patch('core.authentication.TokenAuthentication.authenticate')
+    def test_user_account_info_with_wrong_account_number(self,  authenticate_function):
+        user = create_test_user(username="odeyemi", password="odeyemi")
+        deposit = create_test_transaction(account=user,amount=100)
+        withdrawal = create_test_transaction(account=user,amount=10, transaction_type=Transaction.TRANSACTION_TYPE.WITHDRAWAL)
+        authenticate_function.return_value = user, None
+        url = reverse("user:account-info", kwargs={"account_number":"1215654146677"})
+        response = self.client.get(url)
+        response_dict = response.json()
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response_dict[0], "Either account doesn't exist or you are not the owner of this account")
 
         
     

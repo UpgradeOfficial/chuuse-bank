@@ -1,4 +1,5 @@
 from email import message
+from core.validators import validate_amount
 from rest_framework import serializers
 from user.models import User
 from .models import Transaction
@@ -23,9 +24,12 @@ class TransactionInfoSerializer(serializers.ModelSerializer):
         user = self.context.get("request").user
         total_deposit = Transaction.objects.filter(
             account=user,
-            created_at__lte=obj.created_at,
+            order__lte=obj.order,
             transaction_type=Transaction.TRANSACTION_TYPE.DEPOSIT).aggregate(sum=Sum('amount'))['sum'] or 0
-        total_withdrawal = Transaction.objects.filter(account=user, created_at__gte=obj.created_at ,transaction_type=Transaction.TRANSACTION_TYPE.WITHDRAWAL).aggregate(sum=Sum('amount'))['sum'] or 0
+        total_withdrawal = Transaction.objects.filter(
+            account=user, 
+            order__lte=obj.order,
+            transaction_type=Transaction.TRANSACTION_TYPE.WITHDRAWAL).aggregate(sum=Sum('amount'))['sum'] or 0
         total_balance = total_deposit - total_withdrawal
         return total_balance
 
@@ -38,7 +42,7 @@ class TransactionInfoSerializer(serializers.ModelSerializer):
 
 class DepositTransactionSerializer(serializers.Serializer):
     accountNumber = serializers.CharField(write_only=True)
-    amount= serializers.DecimalField(max_digits=100, decimal_places=2, write_only=True)
+    amount= serializers.DecimalField(max_digits=100, decimal_places=2, write_only=True, validators =[validate_amount],)
 
 
     def validate(self,data):
@@ -54,7 +58,7 @@ class DepositTransactionSerializer(serializers.Serializer):
 class WithdrawalTransactionSerializer(serializers.Serializer):
     accountNumber = serializers.CharField(write_only=True)
     accountPassword = serializers.CharField(write_only=True)
-    withdrawnAmount = serializers.DecimalField(max_digits=100, decimal_places=2, write_only=True)
+    withdrawnAmount = serializers.DecimalField(max_digits=100,validators =[validate_amount], decimal_places=2, write_only=True)
 
 
     def validate(self, data):

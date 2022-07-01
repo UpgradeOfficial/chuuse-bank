@@ -15,7 +15,16 @@ class Transaction(CoreModel):
         default=TRANSACTION_TYPE.DEPOSIT,
     )
     amount = models.DecimalField(max_digits=100, decimal_places=2)
+    order = models.BigIntegerField()
+    extra_data = models.CharField(max_length=200,blank=True, null=True)
+
+
 
     def __str__(self) -> str:
         return f"{self.transaction_type}-{self.amount}-{self.created_at}"
+
+    def save(self, *args, **kwargs):
+        if not self.order:
+            self.order = Transaction.objects.count()+ 1
+        super().save(*args, **kwargs)
 

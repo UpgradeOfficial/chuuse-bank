@@ -17,13 +17,9 @@ class AccountProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['account_name','account_number', "balance"]
+    
 
     def get_balance(self, obj):
-        account_number = self.context.get("view").kwargs.get("account_number")
-        user = self.context.get("request").user
-        account = User.objects.filter(account_number=account_number)
-        if len(account) == 0 or  user != account.first():
-            raise ValidationError("Either account doesn't exist or you are not the owner of this account")
         total_deposit = Transaction.objects.filter(account=user, transaction_type=Transaction.TRANSACTION_TYPE.DEPOSIT).aggregate(sum=Sum('amount'))['sum'] or 0
         total_withdrawal = Transaction.objects.filter(account=user, transaction_type=Transaction.TRANSACTION_TYPE.WITHDRAWAL).aggregate(sum=Sum('amount'))['sum'] or 0
         total_balance = total_deposit - total_withdrawal

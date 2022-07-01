@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework.exceptions import  ValidationError
 from transaction.models import Transaction
 from .serializers import LoginSerializer, UserRegistrationSerializer, AccountProfileSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -52,12 +53,16 @@ class LoginView(ObtainAuthToken):
         return Response(data={"accessToken": token.key, "success":True})
         
 
-class AccountInfoView(APIView): #generics.Retrieve
+class AccountInfoView(APIView): 
     serializer_class = AccountProfileSerializer
-    # queryset = User.objects.all()
-    # lookup_field = "account_number"
+    
     
     def get(self, *args, **kwargs):
+        account_number = kwargs.get("account_number")
+        user = self.request.user
+        account = User.objects.filter(account_number=account_number)
+        if  account.exists() is False or  user != account.first():
+            raise ValidationError("Either account doesn't exist or you are not the owner of this account")
         user = self.request.user
         data = {
         "responseCode":200,
@@ -71,12 +76,5 @@ class AccountInfoView(APIView): #generics.Retrieve
         }
         return Response(data=data)
 
-#     int responseCode
-# boolean success
-# String message
-# Object account {
-# String accountName,
-# String accountNumber,
-# Double balance
-# }
+
 
